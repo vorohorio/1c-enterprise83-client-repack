@@ -2,16 +2,15 @@
 # 1c-enterprise83-client-repack.sh
 # Скрипт перепаковки deb-пакетов 1С:Предприятия 8.3, который позволит установить несколько версий клиента 1С.
 
-function movelib {
-  lib=$1
-  fname="$tmpdir/server/opt/1C/v8.3/$ARCH/$lib"
-  if [ -f $fname ]; then
-    mv $fname "$tmpdir/opt/1C/v8.3/$ARCH"
-  fi
+if [ -z "$1" ]
+then
+ echo "Порядок использования: `basename $0` 8.3.5-1248"
+ exit 65
+fi
 
-}
+VER1C=$1
 
-
+cd $VER1C
 
 tmpdir=1c-enterprise83-repack-tmp
 mkdir $tmpdir
@@ -34,14 +33,15 @@ do
 done
 
 
-mkdir "$tmpdir/server/"
 for i in 1c-enterprise83-server_8.3.*.deb
 do
   if ! [[ $i =~ "nls" ]] ; then
     echo "extract $i"
-    dpkg-deb -x $i "$tmpdir/server/"
+    dpkg-deb -x $i "$tmpdir/"
   fi
 done
+rm -R "$tmpdir/etc"
+
 
 Version=`awk '/^Version:/{print $2}' "$tmpdir/DEBIAN/control"`
 Architecture=`awk '/^Architecture:/{print $2}' "$tmpdir/DEBIAN/control"`
@@ -62,20 +62,10 @@ esac
 #echo $Version
 #echo $ARCH
 
-for i in accnt accntui addin addncpp backbas backend basic basicui bp bpui bsl calc calcui chart chartui config core83 crcore dbeng8 dbgbase dbgmc dbgrc dbgtgt dbgwc dcs dcscore dcsui debug devtool dsgncmd dsgnfrm edb edbui entext enums ext extui filedb fmtd fmtdui frame frntend ftext grphcs help helpui html htmlui httpsrv image imageui inet lockman map mapui mngbase mngcln mngcore mngdsgn mngsrv mngui morph moxel moxelui nuke83 odata pack pictedt rclient richui rscalls rtrsrvc scheme schemui sqlite stl83 techsys test testbase txtedt txtedui vrsbase vrscore wbase ws xdto xml2
-do
-  #echo -e $i
-  movelib "$i.so"
-  movelib "${i}_root.res"
-  movelib "${i}_ru.res"
-done
-
 # очистка
 mv "$tmpdir/opt/1C/v8.3/$ARCH/" "$tmpdir/opt/1C/v8.3/$Version"
 mv "$tmpdir/usr/share/applications/1cestart.desktop" "$tmpdir/"
 rm -R "$tmpdir/usr"
-chmod -R 700 "$tmpdir/server"
-rm -R "$tmpdir/server"
 
 # настройка 1cestart.desktop
 sed -i "s/Exec=.*$/Exec=\/opt\/1C\/v8.3\/$Version\/1cestart/" "$tmpdir/1cestart.desktop"
@@ -91,7 +81,7 @@ sed -i 's/Installed-Size: .*$/Installed-Size: 400000/' "$tmpdir/DEBIAN/control"
 sed -i 's/Depends: .*$/Depends: libwebkitgtk-1.0-0 ( >= 1.2.5 )/' "$tmpdir/DEBIAN/control"
 
 # сборка пакета
-fakeroot dpkg-deb --build $tmpdir
+dpkg-deb --build $tmpdir
 mv $tmpdir.deb 1c-enterprise83-client-repack-${Version}_${Architecture}.deb
 
 chmod -R 700 "$tmpdir"
