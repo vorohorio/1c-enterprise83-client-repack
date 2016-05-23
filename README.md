@@ -17,5 +17,7 @@
         ├── 1c-enterprise83-common_8.3.7-2027_amd64.deb
         └── 1c-enterprise83-server_8.3.7-2027_amd64.deb
 
+Затем нужно запустить скрипт, указав в параметре нужную версию:
+    1c-enterprise83-client-repack.sh 8.3.7-2027
 В результате в папке с версией появится пакет типа:
 1c-enterprise83-client-repack-8.3.7-2027_amd64.deb
