@@ -2,20 +2,21 @@
 # 1c-enterprise83-client-repack.sh
 # Скрипт перепаковки deb-пакетов 1С:Предприятия 8.3, который позволит установить несколько версий клиента 1С.
 
-if [ -z "$1" ]
+if [ -z "$2" ]
 then
- echo "Порядок использования: `basename $0` 8.3.5-1248"
+ echo "Порядок использования: `basename $0` 8.3.5-1248 amd64"
  exit 65
 fi
 
 VER1C=$1
+SUFFIX=$2
 
 cd $VER1C
 
 tmpdir=1c-enterprise83-repack-tmp
 mkdir $tmpdir
 
-for i in 1c-enterprise83-common_8.3.*.deb
+for i in 1c-enterprise83-common_8.3.*$SUFFIX.deb
 do
   if ! [[ $i =~ "nls" ]] ; then
     echo "extract $i"
@@ -23,7 +24,7 @@ do
   fi
 done
 
-for i in 1c-enterprise83-client_8.3.*.deb
+for i in 1c-enterprise83-client_8.3.*$SUFFIX.deb
 do
   if ! [[ $i =~ "nls" ]] ; then
     echo "extract $i"
@@ -33,7 +34,7 @@ do
 done
 
 
-for i in 1c-enterprise83-server_8.3.*.deb
+for i in 1c-enterprise83-server_8.3.*$SUFFIX.deb
 do
   if ! [[ $i =~ "nls" ]] ; then
     echo "extract $i"
